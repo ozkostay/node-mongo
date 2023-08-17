@@ -1,0 +1,22 @@
+<%- include('./port/layout-start', {title: title})%>
+<main class="main-conteiner">
+  <% if (allKeys.length > 0) {%>
+  <div class="marg">Количество просмотров по ID:</div>
+  <form action="/get-count" method="POST">
+    <select name="sel">
+      <% allKeys.map ((el, idx) => { %>
+      <option value="<%= el%>"><%= el %></option>
+      <% }) %>
+    </select>
+    <button name="getvalue" value="1">Получить количество просмотров</button>
+    <button name="increment" value="1">Добавить просмотр</button>
+    <div class="marg">
+      Всего просмотров <strong><%= cnt ? cnt : ''%></strong>
+    </div>
+  </form>
+  <%} else {%>
+  <p>Нет просмотренных книг!!!</p>
+  <% }%>
+</main>
+
+<%- include('./port/layout-end')%>
