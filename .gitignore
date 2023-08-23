@@ -1,3 +1,7 @@
+# db radis mongodb
+data/
+data-mongodb/
+
 # Logs
 logs
 *.log

@@ -8,9 +8,8 @@ app.use(express.json());
 app.use("/", indexRouter);
 app.use("/css", express.static(__dirname + "/css"));
 
-const serverPort = process.env.PORT || 4000;
-const PORT = serverPort;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT);
 console.log(
-  `=== Второе приложение Express запущено на ${serverPort} порту ===`
+  `=== Второй сервис COUNTER запущен на ${PORT} порту ===`
 );

@@ -1,10 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const indexRouter = require("./routers/index");
-
-const PORT = process.env.PORT || 3000;
-const MONGO_URL = process.env.MONGO_URL || "localhost";
-const MONGO_DB = "mydb";
 
 const app = express();
 app.set("view engine", "ejs");
@@ -12,15 +7,7 @@ app.use(express.json());
 app.use("/", indexRouter);
 app.use("/css", express.static(__dirname + "/css"));
 
-(async () => {
-  try {
-    // { url: REDIS_URL }
-    await mongoose.connect(`${MONGO_URL}:27017/${MONGO_DB}`);
-    app.listen(PORT);
-    console.log(
-      `=== Основное приложение Express запущено на ${PORT} порту ===`
-    );
-  } catch (e) {
-    console.log(e);
-  }
-})();
+const serverPort = process.env.PORT || 3000;
+const PORT = serverPort;
+app.listen(PORT);
+console.log(`=== Основное приложение Express запущено на ${serverPort} порту ===`);
