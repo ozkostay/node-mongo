@@ -20,12 +20,11 @@ const client = redis.createClient({ url: REDIS_URL });
 
 router.get("/counter/:bookId", async (req, res) => {
   const { bookId } = req.params;
-  console.log('ID ', bookId);
+  console.log("ID ", bookId);
   let cnt = null;
   try {
     cnt = Number(await client.hGet("viewCount", String(bookId)));
-    cnt = !cnt ? 1 : cnt + 1;
-
+    // cnt = !cnt ? 1 : cnt + 1;
   } catch (e) {
     console.log(" Ошибка ", {
       errorcode: 500,
@@ -33,41 +32,34 @@ router.get("/counter/:bookId", async (req, res) => {
       err: e,
     });
   }
-  
-  console.log('555', cnt);
+
+  console.log("555", cnt);
   res.status(200);
   res.json({ [bookId]: cnt });
 });
 
 router.post("/counter/:bookId/incr", async (req, res) => {
   const { bookId } = req.params;
-  let status = 'Ok';
+  let status = "Ok";
+  let cnt = null;
   try {
-    await client.hSet("viewCount", String(bookId), req.body.count);
+    cnt = Number(await client.hGet("viewCount", String(bookId)));
+    cnt = !cnt ? 0 : cnt;
+    console.log("текущее значение счетчика по ID", cnt);
+    await client.hSet("viewCount", String(bookId), cnt + 1);
   } catch (e) {
     status = e.status;
-    console.log('Ошибка HSET', {
+    console.log("Ошибка POST in REDIS", {
       errorcode: 500,
-      errmassage: 'error in radis second APP',
+      errmassage: "error in radis second APP",
       err: e,
     });
   }
   res.status(200);
-  res.json({ status });
+  res.json({ status, cnt: cnt });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-// // /============================================================================ 
+// // /============================================================================
 // router.get("/", async (req, res) => {
 //   let allKeys = null;
 //   try {

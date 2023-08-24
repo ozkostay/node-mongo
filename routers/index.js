@@ -1,21 +1,22 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 const Book = require("../store/Book");
+// Для mongoDB
+const mongoose = require("mongoose");
 // Для работы с файлами
 const fileMulter = require("../middleware/file");
 // Для работы с формами
 const bodyParser = require("body-parser");
 const urlebcodedparser = bodyParser.urlencoded({ extended: false });
-// REDIS
-const redis = require("redis");
-const REDIS_URL = process.env.REDIS_URL || "localhost";
+// Подключение REDIS. В этом сервисе не надо
+// const redis = require("redis");
+// const REDIS_URL = process.env.REDIS_URL || "localhost";
 SECONDAPP_URL = process.env.SECONDAPP_URL;
-const client = redis.createClient({ url: REDIS_URL });
-
-(async () => {
-  await client.connect();
-})();
+// const client = redis.createClient({ url: REDIS_URL });
+// (async () => {
+//   await client.connect();
+// })();
 
 // STORE
 const store = {
@@ -45,36 +46,37 @@ router.get("/view/:id", async (req, res) => {
   const { books } = store;
   const { id } = req.params;
   const idx = books.findIndex((el) => el.id === id);
-  let cnt = 0;
+  // let cnt = 0;
   if (idx !== -1) {
-    // Получаем текущее значение
-    console.log(`999 ${SECONDAPP_URL}/${id}`);
-    try {
-      const response = await fetch(`${SECONDAPP_URL}/${id}`);
-      const cntObj = await response.json(); // значение из RADIS
-      console.log('222', cntObj, typeof cntObj);
-      cnt = Number(cntObj[id]);
-    } catch (e) {
-      console.log(" Ошибка fetch ", {
-        errorcode: 500,
-        errmassage: "error in fetch",
-        err: e,
-      }
-    )};
     // Увеличиваем на 1
     try {
       console.log(`777 ${SECONDAPP_URL}/${id}/incr`);
-      const body = { count: cnt };
+      // const body = { count: cnt }; // далее наверно не надо
       const response = await fetch(`${SECONDAPP_URL}/${id}/incr`, {
-        method: 'post',
-        body: JSON.stringify(body),
-        headers: {'Content-Type': 'application/json'}  
+        method: "post",
+        headers: { "Content-Type": "application/json" },
       });
+      // body: JSON.stringify(body),
       const data = await response.json();
+      console.log("777 data from post", data);
     } catch (e) {
       console.log(" Ошибка post", {
         errorcode: 500,
         errmassage: "error in radis",
+        err: e,
+      });
+    }
+    // Получаем текущее значение
+    console.log(`999 ${SECONDAPP_URL}/${id}`);
+    try {
+      const response = await fetch(`${SECONDAPP_URL}/${id}`);
+      const cntObj = await response.json(); // Получаем значение из RADIS
+      console.log("222", cntObj, typeof cntObj);
+      cnt = Number(cntObj[id]);
+    } catch (e) {
+      console.log(" Ошибка get fetch ", {
+        errorcode: 500,
+        errmassage: "error in fetch",
         err: e,
       });
     }
