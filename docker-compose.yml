@@ -29,12 +29,16 @@ services:
     environment:
       - PORT=3000
       - REDIS_URL=redis://storage
+      - MONGO_URL=mongodb://mongo:27017
+      - MONGODB_NAME=booksstor
       - SECONDAPP_URL=http://secondapp:4000/counter
     ports:
       - 3000:3000
     command: npm run dev
     depends_on:
       - storage
+      - mongo
+      - mongo-express
   secondapp:
     image: node:15.6
     volumes:
@@ -48,3 +52,5 @@ services:
     command: npm run dev
     depends_on:
       - storage
+      - mongo
+      - mongo-express
