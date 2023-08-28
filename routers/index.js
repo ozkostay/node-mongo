@@ -10,27 +10,27 @@ const fileMulter = require("../middleware/file");
 const bodyParser = require("body-parser");
 SECONDAPP_URL = process.env.SECONDAPP_URL;
 
-// Тест внесения записей в MongoDB
-const newBooks = new Books({
-  title: "Книга 1",
-  description: "Jgbcfybt rybub 1",
-  authors: "Пушкин А.С.",
-  favorite: "Файвориты",
-  fileCover: "Обложка",
-  fileName: "FileName.pdf",
-});
+// // Тест внесения записей в MongoDB
+// const newBooks = new Books({
+//   title: "Книга 1",
+//   description: "Jgbcfybt rybub 1",
+//   authors: "Пушкин А.С.",
+//   favorite: "Файвориты",
+//   fileCover: "Обложка",
+//   fileName: "FileName.pdf",
+// });
 
-(async () => {
-  try {
-    await newBooks.save();
-    console.log("Первоначальная книга сохранилась");
-  } catch (e) {
-    console.log({
-      message: "Ошибка в первоначальном добавлении книги стр 29",
-      error: e,
-    });
-  }
-})();
+// (async () => {
+//   try {
+//     await newBooks.save();
+//     console.log("Первоначальная книга сохранилась");
+//   } catch (e) {
+//     console.log({
+//       message: "Ошибка в первоначальном добавлении книги стр 29",
+//       error: e,
+//     });
+//   }
+// })();
 
 const store = {
   // для начала добавим 2 объекта книги
@@ -43,6 +43,32 @@ router.get("/", (req, res) => {
     store: store.books,
   });
   console.log("Библиотека ", store.books);
+});
+
+router.post("/save", async (req, res) => {
+  const newBooks = new Books({
+    title: "Книга 1",
+    description: "Jgbcfybt rybub 1",
+    authors: "Пушкин А.С.",
+    favorite: "Файвориты",
+    fileCover: "Обложка",
+    fileName: "FileName.pdf",
+  });
+
+  try {
+    console.log("mongoose", mongoose.connection.readyState);
+    await newBooks.save();
+    console.log("Первоначальная книга сохранилась");
+  } catch (e) {
+    console.log({
+      message: "Ошибка в первоначальном добавлении книги стр 63",
+      error: e,
+    });
+    res.json({
+      message: "Ошибка в первоначальном добавлении книги стр 63",
+      error: e,
+    });
+  }
 });
 
 // router.get("/create", (req, res) => {

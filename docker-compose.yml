@@ -30,6 +30,7 @@ services:
       - PORT=3000
       - REDIS_URL=redis://storage
       - MONGO_URL=mongodb://mongo:27017
+      - MONGO_URL2=mongodb://root:example@mongo:27017
       - MONGODB_NAME=booksstor
       - SECONDAPP_URL=http://secondapp:4000/counter
     ports:

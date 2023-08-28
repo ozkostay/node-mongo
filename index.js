@@ -11,12 +11,13 @@ app.use("/css", express.static(__dirname + "/css"));
 
 const PORT = process.env.PORT || 3000;
 MONGO_URL = process.env.MONGO_URL;
+MONGO_URL2 = process.env.MONGO_URL2;
 MONGODB_NAME = process.env.MONGODB_NAME;
 
 async function start() {
-  console.log("START MONGO WAY", `${MONGO_URL}/${MONGODB_NAME}`);
+  console.log("START MONGO WAY", `${MONGO_URL2}/${MONGODB_NAME}`);
   try {
-    await mongoose.connect(`${MONGO_URL}/${MONGODB_NAME}`);
+    await mongoose.connect(`${MONGO_URL2}/${MONGODB_NAME}`);
     console.log("База MONGODB подключена!!!");
     app.listen(PORT, () => {
       console.log(
