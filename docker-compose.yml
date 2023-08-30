@@ -23,9 +23,9 @@ services:
     working_dir: /app
     environment:
       - PORT=3000
-      - REDIS_URL=redis://storage
-      - MONGO_URL=mongodb://mongo:27017
-      - MONGODB_NAME=booksstor
+      # - REDIS_URL=redis://storage
+      # - MONGO_URL=mongodb://mongo:27017
+      # - MONGODB_NAME=booksstor
       - SECONDAPP_URL=http://secondapp:4000/counter
     ports:
       - 3000:3000
@@ -42,6 +42,9 @@ services:
     environment:
       - PORT=4000
       - REDIS_URL=redis://storage
+      - MONGO_URL=mongodb://mongo:27017
+      - MONGODB_NAME=booksstor
+
     ports:
       - 4000:4000
     command: npm run dev

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const Books = require("../models/Books");
 // Для работы с формами
 // const bodyParser = require("body-parser");
 // const urlencodedparser = bodyParser.urlencoded({ extended: false });
@@ -14,10 +15,80 @@ const client = redis.createClient({ url: REDIS_URL });
   await client.connect();
 })();
 
-// Создано приложение Node.js, обрабатывающее два роута:
-//     увеличить счётчик POST /counter/:bookId/incr;
-//     получить значение счётчика GET /counter/:bookId — приложение контейнеризировано.
+// Routes MONGO DB
+router.get("/api/books", async (req, res) => {
+  try {
+    const books = await Books.find();
+    res.status("200");
+    res.json({ massage: "route GET/api/books", books: books });
+  } catch {
+    res.status("500");
+    res.json({ massage: "ERROR FROM route GET/api/books" });
+  }
+});
 
+router.get("/api/books/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log("======== id", id);
+  try {
+    const book = await Books.findById(id);
+    res.status("200");
+    res.json({ massage: "route GET/api/books/:id", book: book });
+  } catch {
+    res.status("404");
+    res.json({ massage: `Книга с id=${id} не найдена` });
+  }
+});
+
+router.post("/api/books", async (req, res) => {
+  try {
+    const newBook = new Books({
+      title: "Книга 1",
+      description: "Какоето описание книги",
+      authors: "Пушкин А.С.",
+      favorite: "Файвориты",
+      fileCover: "Обложка",
+      fileName: "FileName.pdf",
+    });
+    const book = await newBook.save();
+    res.status("200");
+    res.json({ massage: "route POST/api/books", book: book });
+  } catch {
+    res.status("500");
+    res.json({ massage: "ERROR FROM route POST /api/books" });
+  }
+});
+
+router.put("/api/books/:id", async (req, res) => {
+  const { id } = req.params;
+  const update = {
+    title: "Книга New",
+    description: "Какоето описание книги New",
+  };
+  try {
+    const book = await Books.findByIdAndUpdate(id, update);
+    res.status("200");
+    res.json({ massage: "route PUT /api/books/id", books: book });
+  } catch {
+    res.status("404");
+    res.json({ massage: `Книга с id=${id} не найдена` });
+  }
+});
+
+router.delete("/api/books/:id", async (req, res) => {
+  const { id } = req.params;
+  const filter = { _id: id };
+  try {
+    const book = await Books.deleteOne(filter);
+    res.status("200");
+    res.json({ massage: "OK", book: book });
+  } catch {
+    res.status("500");
+    res.json({ massage: "ERROR FROM route DELETE /api/books/:id" });
+  }
+});
+
+// Роуты с REDIS
 router.get("/counter/:bookId", async (req, res) => {
   const { bookId } = req.params;
   console.log("ID ", bookId);
