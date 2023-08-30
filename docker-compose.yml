@@ -26,7 +26,7 @@ services:
       # - REDIS_URL=redis://storage
       # - MONGO_URL=mongodb://mongo:27017
       # - MONGODB_NAME=booksstor
-      - SECONDAPP_URL=http://secondapp:4000/counter
+      - SECONDAPP_URL=http://secondapp:4000
     ports:
       - 3000:3000
     command: npm run dev

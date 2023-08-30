@@ -20,10 +20,10 @@ router.get("/api/books", async (req, res) => {
   try {
     const books = await Books.find();
     res.status("200");
-    res.json({ massage: "route GET/api/books", books: books });
+    res.json({ message: "route GET/api/books", books: books });
   } catch {
     res.status("500");
-    res.json({ massage: "ERROR FROM route GET/api/books" });
+    res.json({ message: "ERROR FROM route GET/api/books" });
   }
 });
 
@@ -33,10 +33,10 @@ router.get("/api/books/:id", async (req, res) => {
   try {
     const book = await Books.findById(id);
     res.status("200");
-    res.json({ massage: "route GET/api/books/:id", book: book });
+    res.json({ message: "route GET/api/books/:id", book: book });
   } catch {
     res.status("404");
-    res.json({ massage: `Книга с id=${id} не найдена` });
+    res.json({ message: `Книга с id=${id} не найдена` });
   }
 });
 
@@ -52,10 +52,10 @@ router.post("/api/books", async (req, res) => {
     });
     const book = await newBook.save();
     res.status("200");
-    res.json({ massage: "route POST/api/books", book: book });
+    res.json({ message: "route POST/api/books", book: book });
   } catch {
     res.status("500");
-    res.json({ massage: "ERROR FROM route POST /api/books" });
+    res.json({ message: "ERROR FROM route POST /api/books" });
   }
 });
 
@@ -68,10 +68,10 @@ router.put("/api/books/:id", async (req, res) => {
   try {
     const book = await Books.findByIdAndUpdate(id, update);
     res.status("200");
-    res.json({ massage: "route PUT /api/books/id", books: book });
+    res.json({ message: "route PUT /api/books/id", books: book });
   } catch {
     res.status("404");
-    res.json({ massage: `Книга с id=${id} не найдена` });
+    res.json({ message: `Книга с id=${id} не найдена` });
   }
 });
 
@@ -81,10 +81,10 @@ router.delete("/api/books/:id", async (req, res) => {
   try {
     const book = await Books.deleteOne(filter);
     res.status("200");
-    res.json({ massage: "OK", book: book });
+    res.json({ message: "OK", book: book });
   } catch {
     res.status("500");
-    res.json({ massage: "ERROR FROM route DELETE /api/books/:id" });
+    res.json({ message: "ERROR FROM route DELETE /api/books/:id" });
   }
 });
 
@@ -99,7 +99,7 @@ router.get("/counter/:bookId", async (req, res) => {
   } catch (e) {
     console.log(" Ошибка ", {
       errorcode: 500,
-      errmassage: "error in radis second APP",
+      errmessage: "error in radis second APP",
       err: e,
     });
   }
@@ -122,7 +122,7 @@ router.post("/counter/:bookId/incr", async (req, res) => {
     status = e.status;
     console.log("Ошибка POST in REDIS", {
       errorcode: 500,
-      errmassage: "error in radis second APP",
+      errmessage: "error in radis second APP",
       err: e,
     });
   }
@@ -139,7 +139,7 @@ router.post("/counter/:bookId/incr", async (req, res) => {
 //   } catch (e) {
 //     console.log(" Ошибка ", {
 //       errorcode: 500,
-//       errmassage: "error in radis",
+//       errmessage: "error in radis",
 //       err: e,
 //     });
 //   }
@@ -157,7 +157,7 @@ router.post("/counter/:bookId/incr", async (req, res) => {
 //   } catch (e) {
 //     console.log(" Ошибка удаления в REDIS", {
 //       errorcode: 500,
-//       errmassage: "error in radis 2",
+//       errmessage: "error in radis 2",
 //       err: e,
 //     });
 //   }
@@ -186,7 +186,7 @@ router.post("/counter/:bookId/incr", async (req, res) => {
 //   } catch (e) {
 //     console.log(" Ошибка получения в REDIS", {
 //       errorcode: 500,
-//       errmassage: "error in radis 2",
+//       errmessage: "error in radis 2",
 //       err: e,
 //     });
 //   }

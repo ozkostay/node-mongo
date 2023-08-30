@@ -10,66 +10,78 @@ const fileMulter = require("../middleware/file");
 const bodyParser = require("body-parser");
 SECONDAPP_URL = process.env.SECONDAPP_URL;
 
-// // Тест внесения записей в MongoDB
-// const newBooks = new Books({
-//   title: "Книга 1",
-//   description: "Jgbcfybt rybub 1",
-//   authors: "Пушкин А.С.",
-//   favorite: "Файвориты",
-//   fileCover: "Обложка",
-//   fileName: "FileName.pdf",
-// });
+router.get("/", async (req, res) => {
+  let books = [];
+  try {
+    const response = await fetch(`${SECONDAPP_URL}/api/books`);
+    const data = await response.json();
+    books = data.books;
+  } catch (e) {
+    console.log("Ошибка router.get /", {
+      errorcode: 500,
+      errmassage: "Ошибка router.get /",
+      err: e,
+    });
+  }
+  res.render("index", {
+    title: "Main PAGE",
+    store: books,
+  });
+});
 
-// (async () => {
+router.post("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await fetch(`${SECONDAPP_URL}/api/books/${id}`, {
+      method: "delete",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    if (data.message === "OK") {
+      console.log("Запись удалена!!!");
+      res.redirect("/");
+    } else {
+      console.log("Ошибка API Запись НЕ удалена!!!", data.message);
+    }
+  } catch (e) {
+    console.log("router.post /delete/:id", {
+      errorcode: 500,
+      errmassage: "router.post /delete/:id",
+      err: e,
+    });
+    res.status(404);
+    res.json({
+      status: 404,
+      errormsg: "404 | страница не найдена",
+    });
+  }
+});
+
+// router.post("/save", async (req, res) => {
+//   const newBooks = new Books({
+//     title: "Книга 1",
+//     description: "Jgbcfybt rybub 1",
+//     authors: "Пушкин А.С.",
+//     favorite: "Файвориты",
+//     fileCover: "Обложка",
+//     fileName: "FileName.pdf",
+//   });
+
 //   try {
+//     console.log("mongoose", mongoose.connection.readyState);
 //     await newBooks.save();
 //     console.log("Первоначальная книга сохранилась");
 //   } catch (e) {
 //     console.log({
-//       message: "Ошибка в первоначальном добавлении книги стр 29",
+//       message: "Ошибка в первоначальном добавлении книги стр 63",
+//       error: e,
+//     });
+//     res.json({
+//       message: "Ошибка в первоначальном добавлении книги стр 63",
 //       error: e,
 //     });
 //   }
-// })();
-
-const store = {
-  // для начала добавим 2 объекта книги
-  books: [],
-};
-
-router.get("/", (req, res) => {
-  res.render("index", {
-    title: "Main PAGE",
-    store: store.books,
-  });
-  console.log("Библиотека ", store.books);
-});
-
-router.post("/save", async (req, res) => {
-  const newBooks = new Books({
-    title: "Книга 1",
-    description: "Jgbcfybt rybub 1",
-    authors: "Пушкин А.С.",
-    favorite: "Файвориты",
-    fileCover: "Обложка",
-    fileName: "FileName.pdf",
-  });
-
-  try {
-    console.log("mongoose", mongoose.connection.readyState);
-    await newBooks.save();
-    console.log("Первоначальная книга сохранилась");
-  } catch (e) {
-    console.log({
-      message: "Ошибка в первоначальном добавлении книги стр 63",
-      error: e,
-    });
-    res.json({
-      message: "Ошибка в первоначальном добавлении книги стр 63",
-      error: e,
-    });
-  }
-});
+// });
 
 // router.get("/create", (req, res) => {
 //   // console.log('CREATE!!!');
@@ -247,23 +259,6 @@ router.post("/save", async (req, res) => {
 //     };
 
 //     res.json(books[idx]);
-//   } else {
-//     res.status(404);
-//     res.json({
-//       status: 404,
-//       errormsg: "404 | страница не найдена",
-//     });
-//   }
-// });
-
-// router.post("/api/books/delete/:id", (req, res) => {
-//   // Удаляем книгу
-//   const { books } = store;
-//   const { id } = req.params;
-//   const idx = books.findIndex((el) => el.id === id);
-//   if (idx !== -1) {
-//     books.splice(idx, 1);
-//     res.redirect("/");
 //   } else {
 //     res.status(404);
 //     res.json({
