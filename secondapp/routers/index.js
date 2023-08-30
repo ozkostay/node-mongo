@@ -19,10 +19,10 @@ const client = redis.createClient({ url: REDIS_URL });
 router.get("/api/books", async (req, res) => {
   try {
     const books = await Books.find();
-    res.status("200");
+    res.status(200);
     res.json({ message: "route GET/api/books", books: books });
   } catch {
-    res.status("500");
+    res.status(500);
     res.json({ message: "ERROR FROM route GET/api/books" });
   }
 });
@@ -32,45 +32,44 @@ router.get("/api/books/:id", async (req, res) => {
   console.log("======== id", id);
   try {
     const book = await Books.findById(id);
-    res.status("200");
+    res.status(200);
     res.json({ message: "route GET/api/books/:id", book: book });
   } catch {
-    res.status("404");
+    res.status(404);
     res.json({ message: `Книга с id=${id} не найдена` });
   }
 });
 
 router.post("/api/books", async (req, res) => {
+  console.log('BODY POST===', req.body);
+  const {title, description, authors, favorite, fileCover, fileName} = req.body;
+  const newBook = new Books({
+    title: title,
+    description: description,
+    authors: authors,
+    favorite: favorite,
+    fileCover: fileCover,
+    fileName: fileName,
+  });
   try {
-    const newBook = new Books({
-      title: "Книга 1",
-      description: "Какоето описание книги",
-      authors: "Пушкин А.С.",
-      favorite: "Файвориты",
-      fileCover: "Обложка",
-      fileName: "FileName.pdf",
-    });
     const book = await newBook.save();
-    res.status("200");
+    res.status(200);
     res.json({ message: "route POST/api/books", book: book });
   } catch {
-    res.status("500");
+    res.status(500);
     res.json({ message: "ERROR FROM route POST /api/books" });
   }
 });
 
 router.put("/api/books/:id", async (req, res) => {
   const { id } = req.params;
-  const update = {
-    title: "Книга New",
-    description: "Какоето описание книги New",
-  };
+  const update = req.body;
   try {
     const book = await Books.findByIdAndUpdate(id, update);
-    res.status("200");
+    res.status(200);
     res.json({ message: "route PUT /api/books/id", books: book });
   } catch {
-    res.status("404");
+    res.status(404);
     res.json({ message: `Книга с id=${id} не найдена` });
   }
 });
@@ -80,10 +79,10 @@ router.delete("/api/books/:id", async (req, res) => {
   const filter = { _id: id };
   try {
     const book = await Books.deleteOne(filter);
-    res.status("200");
+    res.status(200);
     res.json({ message: "OK", book: book });
   } catch {
-    res.status("500");
+    res.status(500);
     res.json({ message: "ERROR FROM route DELETE /api/books/:id" });
   }
 });

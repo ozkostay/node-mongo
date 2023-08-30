@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
-// Для mongoDB
-// const mongoose = require("mongoose");
 const Books = require("../models/Books");
 // Для работы с файлами
 const fileMulter = require("../middleware/file");
 // Для работы с формами
 const bodyParser = require("body-parser");
-SECONDAPP_URL = process.env.SECONDAPP_URL;
+const urlebcodedparser = bodyParser.urlencoded({ extended: false });
 
+const SECONDAPP_URL = process.env.SECONDAPP_URL;
+
+// ==================== Роуты ===============================
 router.get("/", async (req, res) => {
   let books = [];
   try {
@@ -29,6 +30,7 @@ router.get("/", async (req, res) => {
   });
 });
 
+// ==========================================================
 router.post("/delete/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -57,6 +59,201 @@ router.post("/delete/:id", async (req, res) => {
   }
 });
 
+// ==========================================================
+router.get("/create", (req, res) => {
+  res.render("create", {
+    title: "CREATE PAGE",
+  });
+});
+
+// ==========================================================
+router.post(
+  "/api/books/",
+  urlebcodedparser,
+  fileMulter.single("fileBook"),
+  async (req, res) => {
+    // Непосредственно запись в STATE новой книги
+    // const { books } = store;
+    console.log("=============== ID ========== ", req.body.id);
+    const {
+      id,
+      title = "Название книги",
+      description,
+      authors,
+      favorite,
+      fileCover,
+      fileName = req.file.originalname,
+      // fileBook = req.file.filename,
+    } = req.body;
+
+    const newBook = {
+      id,
+      title,
+      description,
+      authors,
+      favorite,
+      fileCover,
+      fileName,
+      // fileBook
+    };
+    // Проверка - Редактирование или новая
+    let host = null;
+    let method = null;
+    if (req.body.id) {
+      // Делаем UPDATE
+      host = `${SECONDAPP_URL}/api/books/${id}`;
+      method = 'put';
+    } else {
+      // Просто добавляем новую
+      host = `${SECONDAPP_URL}/api/books`;
+      method = 'post';
+    }
+    
+    console.log('host==', host);
+    console.log('method==', method);
+    try {
+      const response = await fetch( host, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newBook)
+      });
+      const data = await response.json();
+    } catch (e) {
+      console.log("router.post /delete/:id", {
+        errorcode: 500,
+        errmassage: "router.post /delete/:id",
+        err: e,
+      });
+      res.status(404);
+      res.json({
+        status: 404,
+        errormsg: "404 | страница не найдена",
+      });
+    }
+    console.log('newBook', newBook);
+    res.status(201);
+    res.redirect("/");
+  }
+);
+
+// ==========================================================
+router.get("/update/:id", async (req, res) => {
+  // const { books } = store;
+  const { id } = req.params;
+  // console.log('ID===', id);
+  // fetch
+  try {
+    const response = await fetch(`${SECONDAPP_URL}/api/books/${id}`);
+    const data = await response.json();
+    // console.log('data.books', data.book);
+    res.render("update", {
+      title: "UPDATE PAGE",
+      item: data.book,
+    });
+  } catch {
+    console.log('Ошибка /update/:id');
+    res.jsom({msg: 'Ошибка /update/:id'});
+  }
+});
+  
+  // ==========================================================
+router.get("/view/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log('======= /view/:id', id);
+  
+  try {
+    const response = await fetch(`${SECONDAPP_URL}/api/books/${id}`);
+    const data = await response.json();
+    console.log('=========DDDDDDDDDD',data);
+    res.status(200);
+    res.render("view", {
+      title: "VIEW PAGE",
+      item: data.book,
+      cnt: 777,
+    });
+    // res.json({message: 'VIEW NORM'});
+  } catch {
+    res.status(404);
+    res.json({ message: 'Ошибка /view/:id' });
+  }
+    
+    // Если ОК то делаем инкримент
+    // Отображаем
+
+
+
+
+    // const idx = books.findIndex((el) => el.id === id);
+    // let cnt = 0;
+    // if (idx !== -1) {
+    //   // Увеличиваем на 1
+    //   try {
+    //     console.log(`777 ${SECONDAPP_URL}/${id}/incr`);
+    //     // const body = { count: cnt }; // далее наверно не надо
+    //     const response = await fetch(`${SECONDAPP_URL}/${id}/incr`, {
+    //       method: "post",
+    //       headers: { "Content-Type": "application/json" },
+    //     });
+    //     // body: JSON.stringify(body),
+    //     const data = await response.json();
+    //     // console.log("777 data from post", data);
+    //   } catch (e) {
+    //     console.log(" Ошибка post", {
+    //       errorcode: 500,
+    //       errmassage: "error in radis",
+    //       err: e,
+    //     });
+    //   }
+    //   // Получаем текущее значение
+    //   console.log(`999 ${SECONDAPP_URL}/${id}`);
+    //   try {
+    //     const response = await fetch(`${SECONDAPP_URL}/${id}`);
+    //     const cntObj = await response.json(); // Получаем значение из RADIS
+    //     console.log("222", cntObj, typeof cntObj);
+    //     cnt = Number(cntObj[id]);
+    //   } catch (e) {
+    //     console.log(" Ошибка get fetch ", {
+    //       errorcode: 500,
+    //       errmassage: "error in fetch",
+    //       err: e,
+    //     });
+    //   }
+
+    //   res.render("view", {
+    //     title: "VIEW PAGE",
+    //     item: books[idx],
+    //     cnt: cnt,
+    //   });
+    // } else {
+    //   console.log("NOT found", id);
+    //   res.status(404);
+    //   res.json({
+    //     status: 404,
+    //     errormsg: "404 | страница не найдена",
+    //   });
+    // }
+  });
+
+  // если да то передаем параметр в form
+
+
+  //const idx = books.findIndex((el) => el.id === id);
+  // if (idx !== -1) {
+  //   res.render("update", {
+  //     title: "UPDATE PAGE",
+  //     item: books[idx],
+  //   });
+  // } else {
+  //   console.log("NOT found", id);
+  //   res.status(404);
+  //   res.json({
+  //     status: 404,
+  //     errormsg: "404 | страница не найдена",
+  //   });
+  // }
+
+
+
 // router.post("/save", async (req, res) => {
 //   const newBooks = new Books({
 //     title: "Книга 1",
@@ -83,88 +280,10 @@ router.post("/delete/:id", async (req, res) => {
 //   }
 // });
 
-// router.get("/create", (req, res) => {
-//   // console.log('CREATE!!!');
-//   // ФОРМА Описываеи + кнопка закачки новой книги
-//   // По клику - router.post("/api/books/"
-//   res.render("create", {
-//     title: "CREATE PAGE",
-//     store: store.books,
-//   });
-// });
 
-// router.get("/view/:id", async (req, res) => {
-//   const { books } = store;
-//   const { id } = req.params;
-//   const idx = books.findIndex((el) => el.id === id);
-//   // let cnt = 0;
-//   if (idx !== -1) {
-//     // Увеличиваем на 1
-//     try {
-//       console.log(`777 ${SECONDAPP_URL}/${id}/incr`);
-//       // const body = { count: cnt }; // далее наверно не надо
-//       const response = await fetch(`${SECONDAPP_URL}/${id}/incr`, {
-//         method: "post",
-//         headers: { "Content-Type": "application/json" },
-//       });
-//       // body: JSON.stringify(body),
-//       const data = await response.json();
-//       console.log("777 data from post", data);
-//     } catch (e) {
-//       console.log(" Ошибка post", {
-//         errorcode: 500,
-//         errmassage: "error in radis",
-//         err: e,
-//       });
-//     }
-//     // Получаем текущее значение
-//     console.log(`999 ${SECONDAPP_URL}/${id}`);
-//     try {
-//       const response = await fetch(`${SECONDAPP_URL}/${id}`);
-//       const cntObj = await response.json(); // Получаем значение из RADIS
-//       console.log("222", cntObj, typeof cntObj);
-//       cnt = Number(cntObj[id]);
-//     } catch (e) {
-//       console.log(" Ошибка get fetch ", {
-//         errorcode: 500,
-//         errmassage: "error in fetch",
-//         err: e,
-//       });
-//     }
 
-//     res.render("view", {
-//       title: "VIEW PAGE",
-//       item: books[idx],
-//       cnt: cnt,
-//     });
-//   } else {
-//     console.log("NOT found", id);
-//     res.status(404);
-//     res.json({
-//       status: 404,
-//       errormsg: "404 | страница не найдена",
-//     });
-//   }
-// });
 
-// router.get("/update/:id", (req, res) => {
-//   const { books } = store;
-//   const { id } = req.params;
-//   const idx = books.findIndex((el) => el.id === id);
-//   if (idx !== -1) {
-//     res.render("update", {
-//       title: "UPDATE PAGE",
-//       item: books[idx],
-//     });
-//   } else {
-//     console.log("NOT found", id);
-//     res.status(404);
-//     res.json({
-//       status: 404,
-//       errormsg: "404 | страница не найдена",
-//     });
-//   }
-// });
+
 
 // router.get("/api/books", (req, res) => {
 //   // Главная страница
@@ -172,47 +291,7 @@ router.post("/delete/:id", async (req, res) => {
 //   res.json(books);
 // });
 
-// router.post(
-//   "/api/books/",
-//   urlebcodedparser,
-//   fileMulter.single("fileBook"),
-//   (req, res) => {
-//     // Непосредственно запись в STATE новой книги
-//     const { books } = store;
-//     console.log("=============== ID ========== ", req.body.id);
-//     const {
-//       id,
-//       title = "Название книги",
-//       description,
-//       authors,
-//       favorite,
-//       fileCover,
-//       fileName = req.file.originalname,
-//       fileBook = req.file.filename,
-//     } = req.body;
 
-//     const newBook = new Book(
-//       id,
-//       title,
-//       description,
-//       authors,
-//       favorite,
-//       fileCover,
-//       fileName,
-//       fileBook
-//     );
-
-//     // Проверка - Редактирование или новая
-//     const idx = books.findIndex((el) => el.id === newBook.id);
-//     if (idx !== -1) {
-//       books.splice(idx, 1); // Удаляем существующую
-//     }
-
-//     books.push(newBook);
-//     res.status(201);
-//     res.redirect("/");
-//   }
-// );
 
 // router.post("/api/user/login", (req, res) => {
 //   // в этом проекте не надо, но оставил. НЕТ В ЗАДАНИИ!!!
