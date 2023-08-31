@@ -30,8 +30,3 @@ async function start() {
 }
 
 start();
-
-// app.listen(PORT);
-// console.log(
-//   `=== Второй сервис COUNTER запущен на ${PORT} порту ===`
-// );
